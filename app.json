@@ -1,0 +1,62 @@
+{
+  "expo": {
+    "name": "LooksMax AI",
+    "slug": "looksmax-ai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "looksmax",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0a0f"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.looksmax.ai",
+      "infoPlist": {
+        "NSCameraUsageDescription": "LooksMax needs camera access to scan your face and body for analysis.",
+        "NSPhotoLibraryUsageDescription": "LooksMax needs photo library access to select images for analysis."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0a0a0f"
+      },
+      "package": "com.looksmax.ai",
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow LooksMax to access your camera for face and body scanning."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow LooksMax to access your photos for analysis."
+        }
+      ],
+      "expo-asset"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
