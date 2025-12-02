@@ -1,12 +1,103 @@
-import { View, Text, TouchableOpacity, Image, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Image, ActivityIndicator, StyleSheet, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { analyzeFace } from '../../utils/faceAnalysis';
+import { saveFaceResults, setOnboardingComplete } from '../../utils/userData';
+
+// Web Camera Component
+function WebCamera({ onCapture, onClose, step, facing, onFlip }: {
+  onCapture: (uri: string) => void;
+  onClose: () => void;
+  step: number;
+  facing: string;
+  onFlip: () => void;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  const startWebCamera = useCallback(async () => {
+    try {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: facing === 'front' ? 'user' : 'environment', width: 640, height: 480 }
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+    } catch (err) {
+      console.error('Error accessing camera:', err);
+    }
+  }, [facing]);
+
+  useEffect(() => {
+    startWebCamera();
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [startWebCamera]);
+
+  const capturePhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const canvas = canvasRef.current;
+      const video = videoRef.current;
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(video, 0, 0);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+        onCapture(dataUrl);
+      }
+    }
+  };
+
+  return (
+    <View style={styles.cameraContainer}>
+      <View style={styles.webCameraWrapper}>
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          style={{ width: '100%', height: '100%', objectFit: 'cover', transform: facing === 'front' ? 'scaleX(-1)' : 'none' } as any}
+        />
+        <canvas ref={canvasRef} style={{ display: 'none' } as any} />
+      </View>
+      <View style={styles.cameraOverlay}>
+        <View style={styles.cameraHeader}>
+          <TouchableOpacity onPress={onClose} style={styles.cameraBtn}>
+            <Ionicons name="close-outline" size={24} color="white" />
+          </TouchableOpacity>
+          <View style={styles.stepBadge}><Text style={styles.stepText}>{step}/2</Text></View>
+          <TouchableOpacity onPress={onFlip} style={styles.cameraBtn}>
+            <Ionicons name="camera-reverse" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.cameraGuide}>
+          <View style={styles.cameraFrame} />
+          <Text style={styles.cameraText}>{step === 1 ? 'Position your face (front view)' : 'Turn your head to the side'}</Text>
+        </View>
+        <View style={styles.captureArea}>
+          <TouchableOpacity onPress={capturePhoto} style={styles.captureBtn}>
+            <View style={styles.captureInner} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  );
+}
 
 export default function FaceScanScreen() {
   const router = useRouter();
@@ -40,6 +131,10 @@ export default function FaceScanScreen() {
   };
 
   const startCamera = async () => {
+    if (Platform.OS === 'web') {
+      setCameraActive(true);
+      return;
+    }
     if (!permission?.granted) {
       const result = await requestPermission();
       if (result.granted) setCameraActive(true);
@@ -54,14 +149,44 @@ export default function FaceScanScreen() {
       setFacing('back');
     } else if (step === 2 && sideImage) {
       setIsProcessing(true);
-      await AsyncStorage.setItem('faceImages', JSON.stringify({ front: frontImage, side: sideImage }));
-      setTimeout(() => {
+      
+      try {
+        // Save images
+        await AsyncStorage.setItem('faceImages', JSON.stringify({ front: frontImage, side: sideImage }));
+        
+        // Analyze face using AI API
+        console.log('Starting face analysis...');
+        const results = await analyzeFace(frontImage!, sideImage || undefined);
+        console.log('Analysis results:', results);
+        
+        // Save results persistently using userData utility
+        await saveFaceResults(results);
+        await setOnboardingComplete();
+        
         setIsProcessing(false);
-        router.push('/results-preview');
-      }, 2000);
+        router.push('/goal-selection');
+      } catch (error) {
+        console.error('Analysis error:', error);
+        setIsProcessing(false);
+        router.push('/goal-selection');
+      }
     }
   };
 
+  // Web Camera View
+  if (cameraActive && Platform.OS === 'web') {
+    return (
+      <WebCamera
+        onCapture={(uri) => { setCurrentImage(uri); setCameraActive(false); }}
+        onClose={() => setCameraActive(false)}
+        step={step}
+        facing={facing}
+        onFlip={() => setFacing(facing === 'front' ? 'back' : 'front')}
+      />
+    );
+  }
+
+  // Native Camera View
   if (cameraActive && permission?.granted) {
     return (
       <View style={styles.cameraContainer}>
@@ -69,7 +194,7 @@ export default function FaceScanScreen() {
           <View style={{ flex: 1 }}>
             <View style={styles.cameraHeader}>
               <TouchableOpacity onPress={() => setCameraActive(false)} style={styles.cameraBtn}>
-                <Ionicons name="close" size={24} color="white" />
+                <Ionicons name="close-outline" size={24} color="white" />
               </TouchableOpacity>
               <View style={styles.stepBadge}><Text style={styles.stepText}>{step}/2</Text></View>
               <TouchableOpacity onPress={() => setFacing(facing === 'front' ? 'back' : 'front')} style={styles.cameraBtn}>
@@ -92,10 +217,10 @@ export default function FaceScanScreen() {
   }
 
   return (
-    <LinearGradient colors={['#0a0a0f', '#12121a', '#0a0a0f']} style={styles.container}>
+    <LinearGradient colors={['#071018', '#0c1929', '#071018']} style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => step === 1 ? router.back() : setStep(1)}>
-          <Ionicons name="arrow-back" size={24} color="white" />
+          <Ionicons name="arrow-back-outline" size={24} color="white" />
         </TouchableOpacity>
         <View style={styles.stepIndicator}>
           <View style={[styles.stepDot, step >= 1 && styles.stepDotActive]} />
@@ -113,7 +238,7 @@ export default function FaceScanScreen() {
         <Animated.View entering={FadeInDown.delay(200).springify()} style={styles.uploadArea}>
           {!currentImage ? (
             <TouchableOpacity onPress={pickImage} style={styles.uploadBox}>
-              <View style={styles.uploadIcon}><Ionicons name="person-outline" size={48} color="#a855f7" /></View>
+              <View style={styles.uploadIcon}><Ionicons name="person-outline" size={48} color="#38bdf8" /></View>
               <Text style={styles.uploadText}>{step === 1 ? 'Upload front photo' : 'Upload side photo'}</Text>
               <Text style={styles.uploadHint}>or use camera below</Text>
             </TouchableOpacity>
@@ -122,12 +247,12 @@ export default function FaceScanScreen() {
               <Image source={{ uri: currentImage }} style={styles.preview} />
               {isProcessing && (
                 <View style={styles.processingOverlay}>
-                  <ActivityIndicator size="large" color="#a855f7" />
+                  <ActivityIndicator size="large" color="#38bdf8" />
                   <Text style={styles.processingText}>Analyzing your face...</Text>
                 </View>
               )}
               <TouchableOpacity onPress={() => setCurrentImage(null)} style={styles.clearBtn}>
-                <Ionicons name="close" size={20} color="white" />
+                <Ionicons name="close-outline" size={20} color="white" />
               </TouchableOpacity>
             </View>
           )}
@@ -142,9 +267,9 @@ export default function FaceScanScreen() {
           )}
           {currentImage && !isProcessing && (
             <TouchableOpacity onPress={handleContinue}>
-              <LinearGradient colors={['#a855f7', '#7c3aed']} style={styles.continueBtn}>
+              <LinearGradient colors={['#38bdf8', '#0ea5e9']} style={styles.continueBtn}>
                 <Text style={styles.continueText}>{step === 1 ? 'Continue to Side Photo' : 'Analyze My Face'}</Text>
-                <Ionicons name="arrow-forward" size={20} color="white" />
+                <Ionicons name="arrow-forward-outline" size={20} color="white" />
               </LinearGradient>
             </TouchableOpacity>
           )}
@@ -156,13 +281,15 @@ export default function FaceScanScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  cameraContainer: { flex: 1, backgroundColor: 'black' },
+  cameraContainer: { flex: 1, backgroundColor: 'black', position: 'relative' },
+  webCameraWrapper: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+  cameraOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 10 },
   cameraHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, paddingTop: 60 },
   cameraBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' },
-  stepBadge: { backgroundColor: 'rgba(168,85,247,0.8)', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 },
+  stepBadge: { backgroundColor: 'rgba(56,189,248,0.8)', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20 },
   stepText: { color: 'white', fontWeight: 'bold' },
   cameraGuide: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  cameraFrame: { width: 250, height: 320, borderWidth: 3, borderColor: '#a855f7', borderRadius: 160 },
+  cameraFrame: { width: 250, height: 320, borderWidth: 3, borderColor: '#38bdf8', borderRadius: 160 },
   cameraText: { color: 'white', marginTop: 24, fontSize: 16 },
   captureArea: { alignItems: 'center', paddingBottom: 48 },
   captureBtn: { width: 80, height: 80, borderRadius: 40, borderWidth: 4, borderColor: 'white', alignItems: 'center', justifyContent: 'center' },
@@ -170,13 +297,13 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, paddingTop: 60, paddingBottom: 16 },
   stepIndicator: { flexDirection: 'row', gap: 8 },
   stepDot: { width: 32, height: 4, borderRadius: 2, backgroundColor: '#35354a' },
-  stepDotActive: { backgroundColor: '#a855f7' },
+  stepDotActive: { backgroundColor: '#38bdf8' },
   content: { flex: 1, paddingHorizontal: 24 },
   title: { fontSize: 28, fontWeight: 'bold', color: 'white', textAlign: 'center', marginBottom: 8 },
   subtitle: { color: '#9ca3af', fontSize: 16, textAlign: 'center', marginBottom: 32 },
   uploadArea: { flex: 1, maxHeight: 400 },
   uploadBox: { flex: 1, borderWidth: 2, borderStyle: 'dashed', borderColor: '#4b5563', borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
-  uploadIcon: { width: 96, height: 96, borderRadius: 48, backgroundColor: 'rgba(168,85,247,0.2)', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
+  uploadIcon: { width: 96, height: 96, borderRadius: 48, backgroundColor: 'rgba(56,189,248,0.2)', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
   uploadText: { color: 'white', fontWeight: '600', fontSize: 18 },
   uploadHint: { color: '#6b7280', marginTop: 8 },
   previewContainer: { flex: 1, borderRadius: 24, overflow: 'hidden' },

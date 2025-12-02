@@ -77,7 +77,7 @@ export default function ScannerScreen() {
           <View style={{ flex: 1 }}>
             <View style={styles.cameraHeader}>
               <TouchableOpacity onPress={() => setCameraActive(false)} style={styles.cameraButton}>
-                <Ionicons name="close" size={24} color="white" />
+                <Ionicons name="close-outline" size={24} color="white" />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => setFacing(facing === 'front' ? 'back' : 'front')} style={styles.cameraButton}>
                 <Ionicons name="camera-reverse" size={24} color="white" />
@@ -99,9 +99,9 @@ export default function ScannerScreen() {
   }
 
   return (
-    <LinearGradient colors={['#0a0a0f', '#12121a', '#0a0a0f']} style={styles.container}>
+    <LinearGradient colors={['#071018', '#0c1929', '#071018']} style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}><Ionicons name="arrow-back" size={24} color="white" /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()}><Ionicons name="arrow-back-outline" size={24} color="white" /></TouchableOpacity>
         <Text style={styles.headerTitle}>{scanType === 'face' ? 'Face Scanner' : 'Body Scanner'}</Text>
       </View>
 
@@ -113,7 +113,7 @@ export default function ScannerScreen() {
         <Animated.View entering={FadeInDown.delay(200).springify()} style={styles.uploadArea}>
           {!imageUri ? (
             <TouchableOpacity onPress={pickImage} style={styles.uploadBox}>
-              <View style={styles.uploadIcon}><Ionicons name="cloud-upload-outline" size={40} color="#a855f7" /></View>
+              <View style={styles.uploadIcon}><Ionicons name="cloud-upload-outline" size={40} color="#38bdf8" /></View>
               <Text style={styles.uploadText}>Tap to upload image</Text>
             </TouchableOpacity>
           ) : (
@@ -121,12 +121,12 @@ export default function ScannerScreen() {
               <Image source={{ uri: imageUri }} style={styles.preview} />
               {isProcessing && (
                 <View style={styles.processingOverlay}>
-                  <ActivityIndicator size="large" color="#a855f7" />
+                  <ActivityIndicator size="large" color="#38bdf8" />
                   <Text style={styles.processingText}>Analyzing your {scanType}...</Text>
                 </View>
               )}
               <TouchableOpacity onPress={() => setImageUri(null)} style={styles.clearButton}>
-                <Ionicons name="close" size={20} color="white" />
+                <Ionicons name="close-outline" size={20} color="white" />
               </TouchableOpacity>
             </View>
           )}
@@ -141,8 +141,8 @@ export default function ScannerScreen() {
           )}
           {imageUri && !isProcessing && (
             <TouchableOpacity onPress={analyzeImage}>
-              <LinearGradient colors={['#a855f7', '#7c3aed']} style={styles.primaryButton}>
-                <Ionicons name="scan" size={22} color="white" />
+              <LinearGradient colors={['#38bdf8', '#0ea5e9']} style={styles.primaryButton}>
+                <Ionicons name="scan-outline" size={22} color="white" />
                 <Text style={styles.primaryButtonText}>Analyze {scanType === 'face' ? 'Face' : 'Body'}</Text>
               </LinearGradient>
             </TouchableOpacity>
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   cameraHeader: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 60 },
   cameraButton: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center' },
   cameraGuide: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  cameraFrame: { borderWidth: 2, borderColor: '#a855f7', borderRadius: 24 },
+  cameraFrame: { borderWidth: 2, borderColor: '#38bdf8', borderRadius: 24 },
   cameraText: { color: 'white', marginTop: 16, textAlign: 'center' },
   captureArea: { alignItems: 'center', paddingBottom: 48 },
   captureButton: { width: 80, height: 80, borderRadius: 40, borderWidth: 4, borderColor: 'white', alignItems: 'center', justifyContent: 'center' },
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
   instruction: { color: '#9ca3af', textAlign: 'center', marginBottom: 32 },
   uploadArea: { flex: 1, maxHeight: 400 },
   uploadBox: { flex: 1, borderWidth: 2, borderStyle: 'dashed', borderColor: '#4b5563', borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
-  uploadIcon: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(168,85,247,0.2)', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
+  uploadIcon: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(56,189,248,0.2)', alignItems: 'center', justifyContent: 'center', marginBottom: 16 },
   uploadText: { color: 'white', fontWeight: '500' },
   previewContainer: { flex: 1, borderRadius: 24, overflow: 'hidden', position: 'relative' },
   preview: { width: '100%', height: '100%' },

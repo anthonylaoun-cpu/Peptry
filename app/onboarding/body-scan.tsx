@@ -8,11 +8,11 @@ export default function BodyScanScreen() {
   const router = useRouter();
 
   return (
-    <LinearGradient colors={['#0a0a0f', '#12121a', '#0a0a0f']} style={styles.container}>
+    <LinearGradient colors={['#071018', '#0c1929', '#071018']} style={styles.container}>
       <View style={styles.content}>
         <Animated.View entering={FadeInDown.delay(100).springify()} style={styles.header}>
-          <LinearGradient colors={['#a855f7', '#7c3aed']} style={styles.iconGradient}>
-            <Ionicons name="body" size={64} color="white" />
+          <LinearGradient colors={['#38bdf8', '#0ea5e9']} style={styles.iconGradient}>
+            <Ionicons name="body-outline" size={64} color="white" />
           </LinearGradient>
         </Animated.View>
 
@@ -22,7 +22,7 @@ export default function BodyScanScreen() {
         </Animated.View>
 
         <Animated.View entering={FadeInUp.delay(300).springify()}>
-          <LinearGradient colors={['rgba(168,85,247,0.2)', 'rgba(124,58,237,0.1)']} style={styles.infoCard}>
+          <LinearGradient colors={['rgba(56,189,248,0.2)', 'rgba(14,165,233,0.1)']} style={styles.infoCard}>
             <Text style={styles.infoTitle}>What we analyze:</Text>
             <View style={styles.infoRow}><Ionicons name="checkmark-circle" size={20} color="#22c55e" /><Text style={styles.infoText}>Body fat estimation</Text></View>
             <View style={styles.infoRow}><Ionicons name="checkmark-circle" size={20} color="#22c55e" /><Text style={styles.infoText}>Muscle definition</Text></View>
@@ -33,7 +33,7 @@ export default function BodyScanScreen() {
 
         <Animated.View entering={FadeInUp.delay(400).springify()} style={styles.actions}>
           <TouchableOpacity onPress={() => router.push('/scanner?type=body')}>
-            <LinearGradient colors={['#a855f7', '#7c3aed']} style={styles.primaryBtn}>
+            <LinearGradient colors={['#38bdf8', '#0ea5e9']} style={styles.primaryBtn}>
               <Ionicons name="camera-outline" size={22} color="white" />
               <Text style={styles.primaryText}>Take Body Photos</Text>
             </LinearGradient>
@@ -52,10 +52,10 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { flex: 1, paddingHorizontal: 24, justifyContent: 'center' },
   header: { alignItems: 'center', marginBottom: 32 },
-  iconGradient: { width: 120, height: 120, borderRadius: 60, alignItems: 'center', justifyContent: 'center', shadowColor: '#a855f7', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.5, shadowRadius: 30 },
+  iconGradient: { width: 120, height: 120, borderRadius: 60, alignItems: 'center', justifyContent: 'center', shadowColor: '#38bdf8', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.5, shadowRadius: 30 },
   title: { fontSize: 28, fontWeight: 'bold', color: 'white', textAlign: 'center', marginBottom: 12 },
   subtitle: { color: '#9ca3af', fontSize: 16, textAlign: 'center', lineHeight: 24, marginBottom: 32 },
-  infoCard: { borderRadius: 20, padding: 24, borderWidth: 1, borderColor: 'rgba(168,85,247,0.3)', marginBottom: 32 },
+  infoCard: { borderRadius: 20, padding: 24, borderWidth: 1, borderColor: 'rgba(56,189,248,0.3)', marginBottom: 32 },
   infoTitle: { color: 'white', fontWeight: '600', fontSize: 16, marginBottom: 16 },
   infoRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
   infoText: { color: '#d1d5db', fontSize: 15 },

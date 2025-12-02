@@ -73,30 +73,30 @@ export default function ResultsScreen() {
   };
 
   if (!results) return (
-    <LinearGradient colors={['#0a0a0f', '#12121a', '#0a0a0f']} style={[styles.container, { alignItems: 'center', justifyContent: 'center' }]}>
+    <LinearGradient colors={['#071018', '#0c1929', '#071018']} style={[styles.container, { alignItems: 'center', justifyContent: 'center' }]}>
       <Text style={{ color: 'white' }}>Loading results...</Text>
     </LinearGradient>
   );
 
   return (
-    <LinearGradient colors={['#0a0a0f', '#12121a', '#0a0a0f']} style={styles.container}>
+    <LinearGradient colors={['#071018', '#0c1929', '#071018']} style={styles.container}>
       <ScrollView>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.push('/dashboard')}><Ionicons name="arrow-back" size={24} color="white" /></TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/dashboard')}><Ionicons name="arrow-back-outline" size={24} color="white" /></TouchableOpacity>
           <Text style={styles.headerTitle}>{scanType === 'face' ? 'Face' : 'Body'} Analysis</Text>
           <View style={{ width: 24 }} />
         </View>
 
         <Animated.View entering={FadeInDown.delay(100).springify()}>
-          <LinearGradient colors={['rgba(168,85,247,0.2)', 'rgba(124,58,237,0.1)']} style={styles.scoreCard}>
+          <LinearGradient colors={['rgba(56,189,248,0.2)', 'rgba(14,165,233,0.1)']} style={styles.scoreCard}>
             <Text style={styles.scoreTitle}>Your {scanType === 'face' ? 'Face' : 'Body'} Score</Text>
             <View style={[!isPremium && styles.blurred]}>
               <ScoreRing score={results.overallScore} />
             </View>
             {!isPremium && (
               <TouchableOpacity onPress={() => router.push('/paywall')} style={styles.unlockButton}>
-                <LinearGradient colors={['#a855f7', '#7c3aed']} style={styles.unlockGradient}>
-                  <Ionicons name="lock-closed" size={18} color="white" />
+                <LinearGradient colors={['#38bdf8', '#0ea5e9']} style={styles.unlockGradient}>
+                  <Ionicons name="lock-closed-outline" size={18} color="white" />
                   <Text style={styles.unlockText}>Unlock Results</Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -116,21 +116,21 @@ export default function ResultsScreen() {
         <Animated.View entering={FadeInUp.delay(300).springify()} style={styles.insightsContainer}>
           <View style={[styles.insightCard, !isPremium && styles.blurred]}>
             <View style={styles.insightHeader}>
-              <View style={[styles.insightIcon, { backgroundColor: 'rgba(34,197,94,0.2)' }]}><Ionicons name="trending-up" size={20} color="#22c55e" /></View>
+              <View style={[styles.insightIcon, { backgroundColor: 'rgba(34,197,94,0.2)' }]}><Ionicons name="trending-up-outline" size={20} color="#22c55e" /></View>
               <Text style={styles.insightTitle}>Strengths</Text>
             </View>
             {results.strengths.map((s, i) => (
-              <View key={i} style={styles.insightItem}><Ionicons name="sparkles" size={16} color="#22c55e" /><Text style={styles.insightText}>{s}</Text></View>
+              <View key={i} style={styles.insightItem}><Ionicons name="checkmark-circle" size={16} color="#22c55e" /><Text style={styles.insightText}>{s}</Text></View>
             ))}
           </View>
 
           <View style={[styles.insightCard, !isPremium && styles.blurred]}>
             <View style={styles.insightHeader}>
-              <View style={[styles.insightIcon, { backgroundColor: 'rgba(249,115,22,0.2)' }]}><Ionicons name="trending-down" size={20} color="#f97316" /></View>
+              <View style={[styles.insightIcon, { backgroundColor: 'rgba(249,115,22,0.2)' }]}><Ionicons name="trending-down-outline" size={20} color="#f97316" /></View>
               <Text style={styles.insightTitle}>Areas to Improve</Text>
             </View>
             {results.improvements.map((s, i) => (
-              <View key={i} style={styles.insightItem}><Ionicons name="chevron-forward" size={16} color="#f97316" /><Text style={styles.insightText}>{s}</Text></View>
+              <View key={i} style={styles.insightItem}><Ionicons name="chevron-forward-outline" size={16} color="#f97316" /><Text style={styles.insightText}>{s}</Text></View>
             ))}
           </View>
         </Animated.View>
@@ -138,13 +138,13 @@ export default function ResultsScreen() {
         {!isPremium && (
           <Animated.View entering={FadeInUp.delay(400).springify()} style={styles.upgradeBanner}>
             <TouchableOpacity onPress={() => router.push('/paywall')}>
-              <LinearGradient colors={['#7c3aed', '#a855f7']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.upgradeContent}>
-                <Ionicons name="diamond" size={28} color="white" />
+              <LinearGradient colors={['#0ea5e9', '#38bdf8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.upgradeContent}>
+                <Ionicons name="diamond-outline" size={28} color="white" />
                 <View style={{ flex: 1, marginLeft: 16 }}>
                   <Text style={styles.upgradeTitle}>Unlock Full Analysis</Text>
                   <Text style={styles.upgradeSubtitle}>See all your scores for €3.99/week</Text>
                 </View>
-                <Ionicons name="chevron-forward" size={24} color="white" />
+                <Ionicons name="chevron-forward-outline" size={24} color="white" />
               </LinearGradient>
             </TouchableOpacity>
           </Animated.View>
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 60, paddingBottom: 16 },
   headerTitle: { color: 'white', fontWeight: 'bold', fontSize: 20 },
-  scoreCard: { marginHorizontal: 24, marginBottom: 24, borderRadius: 24, padding: 24, borderWidth: 1, borderColor: 'rgba(168,85,247,0.3)', alignItems: 'center' },
+  scoreCard: { marginHorizontal: 24, marginBottom: 24, borderRadius: 24, padding: 24, borderWidth: 1, borderColor: 'rgba(56,189,248,0.3)', alignItems: 'center' },
   scoreTitle: { fontSize: 20, fontWeight: 'bold', color: 'white', marginBottom: 16 },
   blurred: { opacity: 0.2 },
   unlockButton: { position: 'absolute', top: '50%', marginTop: 20 },
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   metricItem: { marginBottom: 16 },
   metricHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   metricLabel: { color: 'white', fontWeight: '500' },
-  metricScore: { color: '#c084fc', fontWeight: 'bold' },
+  metricScore: { color: '#7dd3fc', fontWeight: 'bold' },
   metricBarBg: { height: 12, backgroundColor: '#252535', borderRadius: 6, overflow: 'hidden' },
   metricBarFill: { height: 12, borderRadius: 6 },
   metricDesc: { color: '#6b7280', fontSize: 12, marginTop: 4 },

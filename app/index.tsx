@@ -1,10 +1,52 @@
-import { View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import Animated, { 
+  FadeInDown, 
+  FadeInUp,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Animated Feature Icon Component with press animation
+function FeatureIcon({ icon, label }: { icon: keyof typeof Ionicons.glyphMap; label: string }) {
+  const scale = useSharedValue(1);
+  const brightness = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    opacity: brightness.value,
+  }));
+
+  const handlePressIn = () => {
+    scale.value = withTiming(1.05, { duration: 150, easing: Easing.out(Easing.ease) });
+    brightness.value = withTiming(1.15, { duration: 150, easing: Easing.out(Easing.ease) });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withTiming(1, { duration: 150, easing: Easing.out(Easing.ease) });
+    brightness.value = withTiming(1, { duration: 150, easing: Easing.out(Easing.ease) });
+  };
+
+  return (
+    <Pressable onPressIn={handlePressIn} onPressOut={handlePressOut}>
+      <Animated.View style={[styles.featureItem, animatedStyle]}>
+        <LinearGradient 
+          colors={['rgba(56,189,248,0.25)', 'rgba(14,165,233,0.15)']}
+          style={styles.featureIcon}
+        >
+          <Ionicons name={icon} size={26} color="#38bdf8" />
+        </LinearGradient>
+        <Text style={styles.featureLabel}>{label}</Text>
+      </Animated.View>
+    </Pressable>
+  );
+}
 
 export default function AuthScreen() {
   const router = useRouter();
@@ -47,12 +89,12 @@ export default function AuthScreen() {
   };
 
   return (
-    <LinearGradient colors={['#0a0a0f', '#12121a', '#0a0a0f']} style={styles.container}>
+    <LinearGradient colors={['#071018', '#0c1929', '#071018']} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Logo */}
         <Animated.View entering={FadeInDown.delay(200).springify()} style={styles.logoContainer}>
-          <LinearGradient colors={['#a855f7', '#7c3aed']} style={styles.logo}>
-            <Ionicons name="sparkles" size={48} color="white" />
+          <LinearGradient colors={['#38bdf8', '#0ea5e9']} style={styles.logo}>
+            <Ionicons name="eye-outline" size={48} color="white" />
           </LinearGradient>
         </Animated.View>
 
@@ -116,7 +158,7 @@ export default function AuthScreen() {
                 style={styles.input}
               />
               <TouchableOpacity onPress={handleEmailSignIn} disabled={isLoading}>
-                <LinearGradient colors={['#a855f7', '#7c3aed']} style={styles.signInButton}>
+                <LinearGradient colors={['#38bdf8', '#0ea5e9']} style={styles.signInButton}>
                   <Text style={styles.signInButtonText}>
                     {isLoading ? 'Signing in...' : 'Sign In'}
                   </Text>
@@ -135,18 +177,9 @@ export default function AuthScreen() {
 
         {/* Features */}
         <Animated.View entering={FadeInUp.delay(800).springify()} style={styles.features}>
-          {[
-            { icon: 'scan-outline', label: 'Face AI' },
-            { icon: 'body-outline', label: 'Body AI' },
-            { icon: 'analytics-outline', label: 'Insights' },
-          ].map((feature, index) => (
-            <View key={index} style={styles.featureItem}>
-              <View style={styles.featureIcon}>
-                <Ionicons name={feature.icon as any} size={26} color="#a855f7" />
-              </View>
-              <Text style={styles.featureLabel}>{feature.label}</Text>
-            </View>
-          ))}
+          <FeatureIcon icon="person-circle-outline" label="Face AI" />
+          <FeatureIcon icon="accessibility-outline" label="Body AI" />
+          <FeatureIcon icon="trending-up-outline" label="Insights" />
         </Animated.View>
       </ScrollView>
     </LinearGradient>
@@ -157,10 +190,10 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24 },
   logoContainer: { alignItems: 'center', marginBottom: 32 },
-  logo: { width: 96, height: 96, borderRadius: 24, alignItems: 'center', justifyContent: 'center', shadowColor: '#a855f7', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.5, shadowRadius: 20 },
+  logo: { width: 96, height: 96, borderRadius: 24, alignItems: 'center', justifyContent: 'center', shadowColor: '#38bdf8', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.5, shadowRadius: 20 },
   titleContainer: { alignItems: 'center', marginBottom: 8 },
   title: { fontSize: 48, fontWeight: 'bold' },
-  titlePurple: { color: '#c084fc' },
+  titlePurple: { color: '#7dd3fc' },
   titleWhite: { color: 'white' },
   subtitle: { color: '#9ca3af', textAlign: 'center', fontSize: 18, marginBottom: 40 },
   authContainer: { gap: 16 },
@@ -169,7 +202,7 @@ const styles = StyleSheet.create({
   authButtonText: { color: 'white', fontWeight: '600', marginLeft: 12, fontSize: 16 },
   emailForm: { gap: 12 },
   input: { backgroundColor: '#1a1a25', borderWidth: 1, borderColor: '#35354a', borderRadius: 16, paddingVertical: 16, paddingHorizontal: 20, color: 'white', fontSize: 16 },
-  signInButton: { borderRadius: 16, paddingVertical: 16, alignItems: 'center', shadowColor: '#a855f7', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12 },
+  signInButton: { borderRadius: 16, paddingVertical: 16, alignItems: 'center', shadowColor: '#38bdf8', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 12 },
   signInButtonText: { color: 'white', fontWeight: 'bold', fontSize: 16 },
   backButton: { paddingVertical: 8 },
   backButtonText: { color: '#9ca3af', textAlign: 'center' },
@@ -177,8 +210,21 @@ const styles = StyleSheet.create({
   trustBadge: { alignItems: 'center', marginBottom: 24 },
   trustText: { color: 'white', fontSize: 22, fontWeight: 'bold', marginBottom: 12 },
   starsRow: { flexDirection: 'row', gap: 4 },
-  features: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 48, marginBottom: 32 },
-  featureItem: { alignItems: 'center' },
-  featureIcon: { width: 56, height: 56, borderRadius: 16, backgroundColor: 'rgba(168,85,247,0.2)', alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
-  featureLabel: { color: '#9ca3af', fontSize: 12 },
+  features: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 48, marginBottom: 32, paddingHorizontal: 8 },
+  featureItem: { alignItems: 'center', justifyContent: 'center' },
+  featureIcon: { 
+    width: 56, 
+    height: 56, 
+    borderRadius: 16, 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(56,189,248,0.3)',
+    shadowColor: '#38bdf8',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+  featureLabel: { color: '#9ca3af', fontSize: 12, fontWeight: '500' },
 });

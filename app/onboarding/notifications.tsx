@@ -17,7 +17,7 @@ export default function NotificationsScreen() {
   };
 
   return (
-    <LinearGradient colors={['#0a0a0f', '#12121a', '#0a0a0f']} style={styles.container}>
+    <LinearGradient colors={['#071018', '#0c1929', '#071018']} style={styles.container}>
       {/* Step Indicators */}
       <View style={styles.stepContainer}>
         <View style={styles.stepInactive} />
@@ -34,7 +34,7 @@ export default function NotificationsScreen() {
 
       <Animated.View entering={FadeInUp.delay(300).springify()} style={styles.footer}>
         <TouchableOpacity onPress={handleEnable}>
-          <LinearGradient colors={['#a855f7', '#7c3aed']} style={styles.continueButton}>
+          <LinearGradient colors={['#38bdf8', '#0ea5e9']} style={styles.continueButton}>
             <Text style={styles.continueText}>Continue</Text>
           </LinearGradient>
         </TouchableOpacity>
@@ -46,7 +46,7 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   stepContainer: { flexDirection: 'row', paddingHorizontal: 24, paddingTop: 60, gap: 8 },
-  stepActive: { flex: 1, height: 4, backgroundColor: '#a855f7', borderRadius: 2 },
+  stepActive: { flex: 1, height: 4, backgroundColor: '#38bdf8', borderRadius: 2 },
   stepInactive: { flex: 1, height: 4, backgroundColor: '#35354a', borderRadius: 2 },
   content: { flex: 1, paddingHorizontal: 24, justifyContent: 'flex-start', paddingTop: 40 },
   header: { alignItems: 'flex-start' },

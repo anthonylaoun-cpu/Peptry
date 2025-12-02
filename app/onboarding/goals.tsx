@@ -31,9 +31,9 @@ export default function GoalsScreen() {
   };
 
   return (
-    <LinearGradient colors={['#0a0a0f', '#12121a', '#0a0a0f']} style={styles.container}>
+    <LinearGradient colors={['#071018', '#0c1929', '#071018']} style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}><Ionicons name="arrow-back" size={24} color="white" /></TouchableOpacity>
+        <TouchableOpacity onPress={() => router.back()}><Ionicons name="arrow-back-outline" size={24} color="white" /></TouchableOpacity>
       </View>
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
@@ -46,13 +46,13 @@ export default function GoalsScreen() {
           {goals.map((goal, index) => (
             <TouchableOpacity key={goal.id} onPress={() => toggleGoal(goal.id)} style={styles.goalCard}>
               <LinearGradient
-                colors={selected.includes(goal.id) ? ['#a855f7', '#7c3aed'] : ['rgba(255,255,255,0.05)', 'rgba(255,255,255,0.02)']}
+                colors={selected.includes(goal.id) ? ['#38bdf8', '#0ea5e9'] : ['rgba(255,255,255,0.05)', 'rgba(255,255,255,0.02)']}
                 style={[styles.goalGradient, selected.includes(goal.id) && styles.goalSelected]}
               >
-                <Ionicons name={goal.icon as any} size={28} color={selected.includes(goal.id) ? 'white' : '#a855f7'} />
+                <Ionicons name={goal.icon as any} size={28} color={selected.includes(goal.id) ? 'white' : '#38bdf8'} />
                 <Text style={[styles.goalText, selected.includes(goal.id) && styles.goalTextSelected]}>{goal.label}</Text>
                 {selected.includes(goal.id) && (
-                  <View style={styles.checkmark}><Ionicons name="checkmark" size={16} color="white" /></View>
+                  <View style={styles.checkmark}><Ionicons name="checkmark-outline" size={16} color="white" /></View>
                 )}
               </LinearGradient>
             </TouchableOpacity>
@@ -62,9 +62,9 @@ export default function GoalsScreen() {
 
       <Animated.View entering={FadeInUp.delay(400).springify()} style={styles.footer}>
         <TouchableOpacity onPress={handleContinue} disabled={selected.length === 0}>
-          <LinearGradient colors={selected.length > 0 ? ['#a855f7', '#7c3aed'] : ['#35354a', '#252535']} style={styles.continueBtn}>
+          <LinearGradient colors={selected.length > 0 ? ['#38bdf8', '#0ea5e9'] : ['#35354a', '#252535']} style={styles.continueBtn}>
             <Text style={styles.continueText}>Continue</Text>
-            <Ionicons name="arrow-forward" size={20} color="white" />
+            <Ionicons name="arrow-forward-outline" size={20} color="white" />
           </LinearGradient>
         </TouchableOpacity>
       </Animated.View>
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   goalCard: { width: '48%' },
   goalGradient: { borderRadius: 16, padding: 20, alignItems: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', minHeight: 100, justifyContent: 'center' },
-  goalSelected: { borderColor: '#a855f7' },
+  goalSelected: { borderColor: '#38bdf8' },
   goalText: { color: '#d1d5db', fontSize: 14, textAlign: 'center', marginTop: 12 },
   goalTextSelected: { color: 'white', fontWeight: '600' },
   checkmark: { position: 'absolute', top: 8, right: 8, width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.2)', alignItems: 'center', justifyContent: 'center' },
